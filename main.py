@@ -1,30 +1,12 @@
-from controllers.round_controller import gen_pairs, enter_scores
-from controllers.tournament_controller import create_tournament
-from models.match_model import Match
+from controllers.round_controller import enter_scores
+from controllers.tournament_controller import create_tournament, launch_tournament
+from views.views import show_tournament_sorted_results, show_tournament_current_rounds_list, show_main_menu, \
+    show_database_menu
 
-tournament_1 = create_tournament()
-print(tournament_1.players_list)
-round1 = gen_pairs(tournament_1, 1)
-print(round1.match_list)
-print(round1.name)
-print(round1.begin_date)
-print(Match.registry)
-enter_scores(round1)
-print(round1.results)
-print(round1.end_date)
-round2 = gen_pairs(tournament_1, 2)
-print(round2.match_list)
-print(Match.registry)
-enter_scores(round2)
-print(round2.results)
-round3 = gen_pairs(tournament_1, 3)
-print(round3.match_list)
-print(Match.registry)
-enter_scores(round3)
-print(round3.results)
-round4 = gen_pairs(tournament_1, 4)
-print(round4.match_list)
-print(Match.registry)
-enter_scores(round4)
-print(round4.results)
-print(tournament_1.rounds_list)
+show_main_menu()
+user_input = input("Quel est votre choix? ")
+if user_input == "1":
+    tournament1 = create_tournament()
+    launch_tournament(tournament1)
+elif user_input == "2":
+    show_database_menu()
