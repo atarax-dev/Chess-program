@@ -46,7 +46,7 @@ class Tournament:
                 match_list.append(Match(player1, player2))
 
             self.current_round += 1
-            self.rounds_list.append(Round(match_list, name=f"Round{self.current_round}"))
+            self.add_round(Round(match_list, name=f"Round{self.current_round}"))
         else:
             possible_combos = self.get_possible_combos()
             for played_round in self.rounds_list:
@@ -73,7 +73,8 @@ class Tournament:
                     possible_combos.remove(reversed_pair)
                 except ValueError:
                     pass
-            self.rounds_list.append(Round(match_list, name=f"Round{self.current_round}"))
+            self.add_round(Round(match_list, name=f"Round{self.current_round}"))
+            # TODO fonction save tournoi dans db
 
     def sort_players_score(self):
         s = sorted(self.players_list, reverse=True, key=get_player_rank)

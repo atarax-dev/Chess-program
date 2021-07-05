@@ -20,3 +20,4 @@ def enter_scores(tournament):
             versus.result2 = 0.5
     tournament.rounds_list[i].end_date = datetime.now()
     tournament.current_round += 1
+    # TODO fonction save tournoi dans db
