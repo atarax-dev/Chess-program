@@ -1,2 +1,4 @@
-from views.views import show_main_menu
-show_main_menu()
+from controllers.tournament_controller import run_main_menu
+
+print("Bienvenue dans le programme de tournois\n")
+run_main_menu()

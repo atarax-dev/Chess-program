@@ -1,7 +1,9 @@
+from datetime import datetime
 from itertools import islice, combinations
+from operator import attrgetter
 
-from controllers.player_controller import get_player_rank, get_player_score
 from models.match_model import Match
+from models.player_model import Player
 from models.round_model import Round
 
 
@@ -9,7 +11,15 @@ class Tournament:
     def __init__(self, name, place, date, time_control, description, players_list=None,
                  number_of_rounds=4, rounds_list=None, current_round=0):
         if players_list is None:
-            players_list = []
+            players_list = [
+                Player("Dupont", "JM", datetime(1990, 6, 12), "M", 2000),
+                Player("Bueno", "Pepito", datetime(1993, 8, 24), "M", 1800),
+                Player("Nabialek", "Anthony", datetime(1993, 3, 25), "M", 2500),
+                Player("De Troie", "Emile", datetime(2003, 10, 17), "M", 1000),
+                Player("Cagole", "Cindy", datetime(1989, 5, 7), "F", 600),
+                Player("Pahouf", "Laetitia", datetime(1991, 5, 3), "F", 1200),
+                Player("Tukonai", "Ines", datetime(1977, 4, 1), "F", 1550),
+                Player("Layeuve", "Francoise", datetime(1958, 6, 13), "F", 1950)]
         if rounds_list is None:
             rounds_list = []
         self.current_round = current_round
@@ -57,7 +67,7 @@ class Tournament:
             match_list = []
             while len(tmp_list) >= 2:
                 i = 1
-                if (tmp_list[0], tmp_list[i]) not in possible_combos:
+                while (tmp_list[0], tmp_list[i]) not in possible_combos:
                     try:
                         i += 1
                     except IndexError:
@@ -77,5 +87,22 @@ class Tournament:
             # TODO fonction save tournoi dans db
 
     def sort_players_score(self):
-        s = sorted(self.players_list, reverse=True, key=get_player_rank)
-        self.players_list = sorted(s, reverse=True, key=get_player_score)
+        s = sorted(self.players_list, reverse=True, key=attrgetter("rank"))
+        self.players_list = sorted(s, reverse=True, key=attrgetter("score"))
+
+    def get_json(self):
+        return {
+            "name": self.name,
+            "place": self.place,
+            "date": self.date,
+            "time_control": self.time_control,
+            "players_list": self.players_list,
+            "number_of_rounds": self.number_of_rounds,
+            "rounds_list": self.rounds_list,
+            "description": self.description,
+            "current_round": self.current_round
+        }
+
+    def get_tournament_details(self):
+        return self.name, self.place, self.date, self.rounds_list, self.players_list, \
+               self.time_control, self.description, self.number_of_rounds
