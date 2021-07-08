@@ -157,6 +157,37 @@ def save_tournament_in_db(tournament_object):
     tournaments_table.insert(data)
 
 
+def update_tournament_in_db(tournament):
+    db = TinyDB("db.json")
+    tournaments_table = db.table("tournaments")
+    tournament_entry = Query()
+    result = tournaments_table.search((tournament_entry.name == f"{tournament.name}"
+                                       and tournament_entry.place == f"{tournament.place}"))
+    json_tournament = tournament.get_json()
+
+    update_list = [({"name": json_tournament["name"]}, tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"place": json_tournament["place"]}, tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"date": json_tournament["date"]}, tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"time_control": json_tournament["time_control"]}, tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"description": json_tournament["description"]}, tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"players_list": json_tournament["players_list"]}, tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"number_of_rounds": json_tournament["number_of_rounds"]},
+                    tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"rounds_list": json_tournament["rounds_list"]}, tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"current_round": json_tournament["current_round"]}, tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"]))]
+
+    tournaments_table.update_multiple(update_list)
+
+
 def create_tournament_from_json(json_tournament):
     name = json_tournament["name"]
     place = json_tournament["place"]

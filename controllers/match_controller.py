@@ -8,4 +8,3 @@ def create_match_from_json(json_match):
     result1 = json_match["result1"]
     result2 = json_match["result2"]
     return Match(player1, player2, result1, result2)
-

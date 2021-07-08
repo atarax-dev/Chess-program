@@ -84,7 +84,7 @@ class Tournament:
                     possible_combos.remove(reversed_pair)
                 except ValueError:
                     pass
-            self.add_round(Round(match_list, name=f"Round{self.current_round}"))
+            self.add_round(Round(match_list, name=f"Round{self.current_round}", begin_date=datetime.now()))
             # TODO fonction save tournoi dans db
 
     def sort_players_score(self):

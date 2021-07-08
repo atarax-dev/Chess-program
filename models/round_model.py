@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from helpers.helpers import convert_datetime_to_str, convert_str_to_datetime
 
 

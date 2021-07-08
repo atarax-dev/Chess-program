@@ -80,6 +80,7 @@ def ask_continue_or_quit():
 
 
 def show_players_from_db():
-    players = TinyDB("db.json")
-    for player in players:
+    db = TinyDB("db.json")
+    players_table = db.table("players")
+    for player in players_table:
         print(player)
