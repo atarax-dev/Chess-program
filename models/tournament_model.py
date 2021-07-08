@@ -2,6 +2,7 @@ from datetime import datetime
 from itertools import islice, combinations
 from operator import attrgetter
 
+from helpers.helpers import convert_datetime_to_str
 from models.match_model import Match
 from models.player_model import Player
 from models.round_model import Round
@@ -94,7 +95,7 @@ class Tournament:
         return {
             "name": self.name,
             "place": self.place,
-            "date": self.date,
+            "date": convert_datetime_to_str(self.date),
             "time_control": self.time_control,
             "players_list": self.players_list,
             "number_of_rounds": self.number_of_rounds,

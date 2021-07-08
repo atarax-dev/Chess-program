@@ -1,3 +1,6 @@
+from helpers.helpers import convert_datetime_to_str
+
+
 class Player:
     def __init__(self, last_name, first_name, birth_date, gender, rank, score=0):
 
@@ -15,7 +18,7 @@ class Player:
         return {
             "last_name": self.last_name,
             "first_name": self.first_name,
-            "birth_date": str(self.birth_date)[:10],
+            "birth_date": convert_datetime_to_str(self.birth_date),
             "gender": self.gender,
             "rank": self.rank,
             "score": self.score

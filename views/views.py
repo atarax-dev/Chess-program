@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from tinydb import TinyDB
+
 from models.player_model import Player
 from models.tournament_model import Tournament
 
@@ -29,8 +31,11 @@ database_menu_list = ["[1]. Créer un nouveau joueur\n",
 def show_menu(menu_list):
     for path in menu_list:
         print(path)
-    user_input = int(input("Quel est votre choix? "))
-    return user_input
+    try:
+        user_input = int(input("Quel est votre choix? "))
+        return user_input
+    except ValueError:
+        show_menu(menu_list)
 
 
 def show_tournament_sorted_results(tournament):
@@ -63,10 +68,16 @@ def ask_player_attributes():
 
 
 def ask_for_scores(versus):
-    result = input(f"Veuillez entrez le résultat du match {versus} (1/2/N) ")
+    result = str(input(f"Veuillez entrez le résultat du match {versus} (1/2/N) ")).lower()
     return result
 
 
 def ask_continue_or_quit():
-    answer = input("Voulez-vous continuer? O/N ")
+    answer = input("Voulez-vous continuer? O/N ").lower()
     return answer
+
+
+def show_players_from_db():
+    players = TinyDB("db.json")
+    for player in players:
+        print(player)
