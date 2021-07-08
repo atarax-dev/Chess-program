@@ -6,15 +6,11 @@ from models.player_model import Player
 
 def load_player_from_db(first_name, last_name):
     db = TinyDB("db.json")
+    players_table = db.table("players")
     player = Query()
-    result = db.search(player.last_name == f"{last_name}" and player.first_name == f"{first_name}")
-    last_name = result[0]["last_name"]
-    first_name = result[0]["first_name"]
-    birth_date = convert_str_to_datetime(result[0]["birth_date"])
-    gender = result[0]["gender"]
-    rank = result[0]["rank"]
-    score = result[0]["score"]
-    return Player(last_name, first_name, birth_date, gender, rank, score)
+    result = players_table.search(player.last_name == f"{last_name}" and player.first_name == f"{first_name}")
+    player = create_player_from_json(result[0])
+    return player
 
 
 def save_player_in_db(player_object):
@@ -46,3 +42,13 @@ def update_player_in_db(player):
                     and user.first_name == str(result[0]["first_name"]))]
 
     players_table.update_multiple(update_list)
+
+
+def create_player_from_json(json_player):
+    last_name = json_player["last_name"]
+    birth_date = convert_str_to_datetime(json_player["birthdate"])
+    first_name = json_player["first_name"]
+    gender = json_player["gender"]
+    rank = json_player["rank"]
+    score = json_player["score"]
+    return Player(last_name, first_name, birth_date, gender, rank, score)

@@ -50,6 +50,7 @@ def show_tournament_current_rounds_list(tournament):
 
 
 def ask_tournament_attributes():
+    # TODO validation des entrées
     name = input("Quel est le nom du tournoi? ")
     place = input("Où se joue t'il? ")
     date = datetime.now()
@@ -59,6 +60,7 @@ def ask_tournament_attributes():
 
 
 def ask_player_attributes():
+    # TODO validation des entrées
     last_name = input("Veuillez entrez le nom de famille du joueur ")
     first_name = input("Veuillez entrez le prénom du joueur ")
     birth_date = input("Veuillez entrez la date de naissance du joueur au format jjmmaa ")

@@ -2,7 +2,8 @@ from datetime import datetime
 
 from tinydb import TinyDB, Query
 
-from controllers.player_controller import save_player_in_db
+from controllers.player_controller import save_player_in_db, create_player_from_json
+from controllers.round_controller import create_round_from_json
 from helpers.helpers import convert_str_to_datetime
 from models.tournament_model import Tournament
 from views.views import show_tournament_current_rounds_list, show_tournament_sorted_results, ask_continue_or_quit, \
@@ -142,19 +143,11 @@ def is_valid_entry(user_input, valid_choice_list):
 
 def load_tournament_from_db(name, place):
     db = TinyDB("db.json")
+    tournaments_table = db.table("tournaments")
     tournament = Query()
-    result = db.search(tournament.name == f"{name}" and tournament.place == f"{place}")
-    name = result[0]["name"]
-    place = result[0]["place"]
-    date = convert_str_to_datetime(result[0]["date"])
-    time_control = result[0]["time_control"]
-    players_list = result[0]["players_list"]
-    rounds_list = result[0]["rounds_list"]
-    number_of_rounds = result[0]["number_of_rounds"]
-    description = result[0]["description"]
-    current_round = result[0]["current_round"]
-    return Tournament(name, place, date, time_control, description, players_list,
-                      number_of_rounds, rounds_list, current_round)
+    result = tournaments_table.search(tournament.name == f"{name}" and tournament.place == f"{place}")
+    tournament = create_tournament_from_json(result[0])
+    return tournament
 
 
 def save_tournament_in_db(tournament_object):
@@ -162,3 +155,25 @@ def save_tournament_in_db(tournament_object):
     db = TinyDB("db.json")
     tournaments_table = db.table("tournaments")
     tournaments_table.insert(data)
+
+
+def create_tournament_from_json(json_tournament):
+    name = json_tournament["name"]
+    place = json_tournament["place"]
+    date = convert_str_to_datetime(json_tournament["date"])
+    time_control = json_tournament["time_control"]
+    json_players_list = json_tournament["players_list"]
+    players_list = []
+    for json_player in json_players_list:
+        player = create_player_from_json(json_player)
+        players_list.append(player)
+    json_rounds_list = json_tournament["rounds_list"]
+    rounds_list = []
+    for json_round in json_rounds_list:
+        generated_round = create_round_from_json(json_round)
+        rounds_list.append(generated_round)
+    number_of_rounds = json_tournament["number_of_rounds"]
+    description = json_tournament["description"]
+    current_round = json_tournament["current_round"]
+    return Tournament(name, place, date, time_control, description, players_list,
+                      number_of_rounds, rounds_list, current_round)

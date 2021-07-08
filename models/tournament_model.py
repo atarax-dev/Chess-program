@@ -57,7 +57,7 @@ class Tournament:
                 match_list.append(Match(player1, player2))
 
             self.current_round += 1
-            self.add_round(Round(match_list, name=f"Round{self.current_round}"))
+            self.add_round(Round(match_list, name=f"Round{self.current_round}", begin_date=datetime.now()))
         else:
             possible_combos = self.get_possible_combos()
             for played_round in self.rounds_list:
@@ -92,14 +92,22 @@ class Tournament:
         self.players_list = sorted(s, reverse=True, key=attrgetter("score"))
 
     def get_json(self):
+        json_players_list = []
+        for player in self.players_list:
+            json_player = player.get_json()
+            json_players_list.append(json_player)
+        json_rounds_list = []
+        for generated_round in self.rounds_list:
+            json_round = generated_round.get_json()
+            json_rounds_list.append(json_round)
         return {
             "name": self.name,
             "place": self.place,
             "date": convert_datetime_to_str(self.date),
             "time_control": self.time_control,
-            "players_list": self.players_list,
+            "players_list": json_players_list,
             "number_of_rounds": self.number_of_rounds,
-            "rounds_list": self.rounds_list,
+            "rounds_list": json_rounds_list,
             "description": self.description,
             "current_round": self.current_round
         }
