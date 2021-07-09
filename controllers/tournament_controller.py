@@ -2,22 +2,27 @@ from datetime import datetime
 
 from tinydb import TinyDB, Query
 
-from controllers.player_controller import save_player_in_db, create_player_from_json
+from controllers.player_controller import save_player_in_db, create_player_from_json, load_player_from_db, \
+    update_player_in_db
 from controllers.round_controller import create_round_from_json
-from helpers.helpers import convert_str_to_datetime
 from models.tournament_model import Tournament
 from views.views import show_tournament_current_rounds_list, show_tournament_sorted_results, ask_continue_or_quit, \
     show_menu, main_menu_list, tournament_menu_list, ask_tournament_attributes, add_players_menu_list, \
-    ask_player_attributes, database_menu_list, ask_for_scores
+    ask_player_attributes, database_menu_list, ask_for_scores, show_tournaments_from_db, ask_for_choice, \
+    show_players_from_db, show_players, show_rounds, modify_player_menu_list, ask_new_first_name, ask_new_last_name, \
+    ask_new_birth_date, ask_new_gender, ask_new_rank
 
 
 def launch_tournament(tournament):
     while tournament.current_round <= tournament.number_of_rounds:
         tournament.generate_swiss_pairs()
+        update_tournament_in_db(tournament)
         show_tournament_current_rounds_list(tournament)
         enter_scores(tournament)
         show_tournament_sorted_results(tournament)
         continue_or_quit()
+    for player in tournament.players_list:
+        player.score = 0
 
 
 def enter_scores(tournament):
@@ -40,11 +45,12 @@ def enter_scores(tournament):
                 versus.result1 = 0.5
                 versus.player2.score += 0.5
                 versus.result2 = 0.5
+            update_tournament_in_db(tournament)
             if versus != tournament.rounds_list[i].match_list[3]:
                 continue_or_quit()
         tournament.rounds_list[i].end_date = datetime.now()
-        tournament.current_round += 1
-        # TODO fonction save tournoi dans db
+    tournament.current_round += 1
+    update_tournament_in_db(tournament)
 
 
 def continue_or_quit():
@@ -73,16 +79,25 @@ def run_tournament_menu():
         user_choice = show_menu(tournament_menu_list)
     if user_choice == 1:
         tournament1 = ask_tournament_attributes()
+        save_tournament_in_db(tournament1)
         while len(tournament1.players_list) < 8:
             print(f"Il manque {8 - len(tournament1.players_list)} joueurs")
             run_add_players_menu(tournament1)
+            update_tournament_in_db(tournament1)
         launch_tournament(tournament1)
         run_main_menu()
     elif user_choice == 2:
-        # TODO afficher tous les tournois
-        # TODO input choix
-        # TODO fonction charger tournoi inachevé
-        pass
+        db = TinyDB("db.json")
+        raw_tournaments_table = db.table("tournaments")
+        tournaments_table = []
+        for tournament in raw_tournaments_table:
+            tournaments_table.append(tournament)
+        show_tournaments_from_db()
+        choice = ask_for_choice()
+        while choice not in len(tournaments_table):
+            ask_for_choice()
+        tournament = load_tournament_from_db(tournaments_table[choice-1]["name"], tournaments_table[choice-1]["place"])
+        launch_tournament(tournament)
     elif user_choice == 3:
         run_main_menu()
 
@@ -95,12 +110,19 @@ def run_add_players_menu(tournament):
         new_player = ask_player_attributes()
         tournament.add_player(new_player)
         save_player_in_db(new_player)
-        # TODO fonction save tournoi dans db
+        update_tournament_in_db(tournament)
     elif user_choice == 2:
-        # TODO afficher la liste des joueurs en db
-        # TODO demander quel joueur
-        # TODO chercher ce joueur et l'ajouter au tournoi
-        pass
+        show_players_from_db()
+        db = TinyDB("db.json")
+        raw_players_table = db.table("players")
+        players_table = []
+        for player in raw_players_table:
+            players_table.append(player)
+        choice = ask_for_choice()
+        while choice not in len(players_table):
+            choice = ask_for_choice()
+        player = load_player_from_db(players_table[choice - 1]["name"], players_table[choice - 1]["last_name"])
+        tournament.players_list.append(player)
     elif user_choice == 3:
         run_main_menu()
 
@@ -112,26 +134,107 @@ def run_database_menu():
     if user_choice == 1:
         player = ask_player_attributes()
         save_player_in_db(player)
+        run_database_menu()
     elif user_choice == 2:
-        # TODO mod joueur db
-        pass
+        show_players_from_db()
+        db = TinyDB("db.json")
+        raw_players_table = db.table("players")
+        players_table = []
+        for player in raw_players_table:
+            players_table.append(player)
+        choice = ask_for_choice()
+        while choice not in len(players_table):
+            choice = ask_for_choice()
+        player = load_player_from_db(players_table[choice - 1]["name"], players_table[choice - 1]["last_name"])
+        run_modify_player_menu(player)
     elif user_choice == 3:
-        # TODO afficher tous les joueurs en db
-        pass
+        show_players_from_db()
+        continue_or_quit()
+        run_database_menu()
     elif user_choice == 4:
-        # TODO afficher tous les tournois en db
-        pass
+        show_tournaments_from_db()
+        continue_or_quit()
+        run_database_menu()
     elif user_choice == 5:
-        # TODO afficher les joueurs d'un tournoi en db
-        pass
+        db = TinyDB("db.json")
+        raw_tournaments_table = db.table("tournaments")
+        tournaments_table = []
+        for tournament in raw_tournaments_table:
+            tournaments_table.append(tournament)
+        show_tournaments_from_db()
+        choice = ask_for_choice()
+        while choice not in len(tournaments_table):
+            ask_for_choice()
+        tournament = load_tournament_from_db(tournaments_table[choice - 1]["name"],
+                                             tournaments_table[choice - 1]["place"])
+        show_players(tournament.players_list)
+        continue_or_quit()
+        run_database_menu()
     elif user_choice == 6:
-        # TODO afficher les rondes d'un tournoi en db
-        pass
+        db = TinyDB("db.json")
+        raw_tournaments_table = db.table("tournaments")
+        tournaments_table = []
+        for tournament in raw_tournaments_table:
+            tournaments_table.append(tournament)
+        show_tournaments_from_db()
+        choice = ask_for_choice()
+        while choice not in len(tournaments_table):
+            ask_for_choice()
+        tournament = load_tournament_from_db(tournaments_table[choice - 1]["name"],
+                                             tournaments_table[choice - 1]["place"])
+        show_rounds(tournament.rounds_list)
+        continue_or_quit()
+        run_database_menu()
     elif user_choice == 7:
-        # TODO afficher les matchs d'un tournoi en db
-        pass
+        db = TinyDB("db.json")
+        raw_tournaments_table = db.table("tournaments")
+        tournaments_table = []
+        for tournament in raw_tournaments_table:
+            tournaments_table.append(tournament)
+        show_tournaments_from_db()
+        choice = ask_for_choice()
+        while choice not in len(tournaments_table):
+            ask_for_choice()
+        tournament = load_tournament_from_db(tournaments_table[choice - 1]["name"],
+                                             tournaments_table[choice - 1]["place"])
+        show_rounds(tournament.rounds_list)
+        continue_or_quit()
+        run_database_menu()
     elif user_choice == 8:
         run_main_menu()
+
+
+def run_modify_player_menu(player):
+    user_choice = 0
+    while not is_valid_entry(user_choice, [1, 2, 3, 4, 5, 6]):
+        user_choice = show_menu(modify_player_menu_list)
+    if user_choice == 1:
+        new_first_name = ask_new_first_name()
+        player.first_name = new_first_name
+        update_player_in_db(player)
+        run_database_menu()
+    elif user_choice == 2:
+        new_last_name = ask_new_last_name()
+        player.first_name = new_last_name
+        update_player_in_db(player)
+        run_database_menu()
+    elif user_choice == 3:
+        new_birth_date = ask_new_birth_date()
+        player.birth_date = new_birth_date
+        update_player_in_db(player)
+        run_database_menu()
+    elif user_choice == 4:
+        new_gender = ask_new_gender()
+        player.gender = new_gender
+        update_player_in_db(player)
+        run_database_menu()
+    elif user_choice == 5:
+        new_rank = ask_new_rank()
+        player.rank = new_rank
+        update_player_in_db(player)
+        run_database_menu()
+    elif user_choice == 6:
+        run_database_menu()
 
 
 def is_valid_entry(user_input, valid_choice_list):
@@ -191,7 +294,7 @@ def update_tournament_in_db(tournament):
 def create_tournament_from_json(json_tournament):
     name = json_tournament["name"]
     place = json_tournament["place"]
-    date = convert_str_to_datetime(json_tournament["date"])
+    date = datetime.strptime(json_tournament["date"], "%Y-%m-%d %H:%M")
     time_control = json_tournament["time_control"]
     json_players_list = json_tournament["players_list"]
     players_list = []

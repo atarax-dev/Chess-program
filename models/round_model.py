@@ -1,8 +1,8 @@
-from helpers.helpers import convert_datetime_to_str, convert_str_to_datetime
+from datetime import datetime
 
 
 class Round:
-    def __init__(self, match_list, name, begin_date, end_date=None):
+    def __init__(self, match_list, name, begin_date, end_date=0):
 
         self.end_date = end_date
         self.begin_date = begin_date
@@ -14,14 +14,14 @@ class Round:
         for match in self.match_list:
             json_match = match.get_json()
             json_match_list.append(json_match)
-        if self.end_date is None:
-            end_date = None
+        if self.end_date == 0:
+            end_date = 0
         else:
-            end_date = convert_str_to_datetime(self.end_date)
+            end_date = datetime.strptime(self.end_date, "%Y-%m-%d %H:%M")
 
         return {
             "match_list": json_match_list,
             "name": self.name,
-            "begin_date": convert_datetime_to_str(self.begin_date),
+            "begin_date": datetime.strptime(self.begin_date, "%Y-%m-%d %H:%M"),
             "end_date": end_date
         }

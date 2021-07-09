@@ -2,7 +2,6 @@ from datetime import datetime
 from itertools import islice, combinations
 from operator import attrgetter
 
-from helpers.helpers import convert_datetime_to_str
 from models.match_model import Match
 from models.player_model import Player
 from models.round_model import Round
@@ -68,11 +67,11 @@ class Tournament:
             match_list = []
             while len(tmp_list) >= 2:
                 i = 1
-                while (tmp_list[0], tmp_list[i]) not in possible_combos:
-                    try:
+                try:
+                    while (tmp_list[0], tmp_list[i]) not in possible_combos:
                         i += 1
-                    except IndexError:
-                        i = 1
+                except IndexError:
+                    i = 1
                 pair = (tmp_list[0], tmp_list[i])
                 match = Match(pair[0], pair[1])
                 reversed_pair = (tmp_list[i], tmp_list[0])
@@ -85,11 +84,13 @@ class Tournament:
                 except ValueError:
                     pass
             self.add_round(Round(match_list, name=f"Round{self.current_round}", begin_date=datetime.now()))
-            # TODO fonction save tournoi dans db
 
     def sort_players_score(self):
         s = sorted(self.players_list, reverse=True, key=attrgetter("rank"))
         self.players_list = sorted(s, reverse=True, key=attrgetter("score"))
+
+    def sort_players_rank(self):
+        self.players_list = sorted(self.players_list, reverse=True, key=attrgetter("rank"))
 
     def get_json(self):
         json_players_list = []
@@ -103,7 +104,7 @@ class Tournament:
         return {
             "name": self.name,
             "place": self.place,
-            "date": convert_datetime_to_str(self.date),
+            "date": str(self.date),
             "time_control": self.time_control,
             "players_list": json_players_list,
             "number_of_rounds": self.number_of_rounds,

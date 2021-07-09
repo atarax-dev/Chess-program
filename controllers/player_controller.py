@@ -1,6 +1,8 @@
+from datetime import datetime
+from operator import attrgetter
+
 from tinydb import TinyDB, Query
 
-from helpers.helpers import convert_str_to_datetime, convert_datetime_to_str
 from models.player_model import Player
 
 
@@ -32,7 +34,7 @@ def update_player_in_db(player):
                     and user.first_name == str(result[0]["first_name"])),
                    ({"first_name": f"{player.first_name}"}, user.last_name == str(result[0]["last_name"])
                     and user.first_name == str(result[0]["first_name"])),
-                   ({"birth_date": f"{convert_datetime_to_str(player.birth_date)}"},
+                   ({"birth_date": datetime.strftime(player.birth_date, "%Y-%m-%d")},
                     user.last_name == str(result[0]["last_name"]) and user.first_name == str(result[0]["first_name"])),
                    ({"gender": f"{player.gender}"}, user.last_name == str(result[0]["last_name"])
                     and user.first_name == str(result[0]["first_name"])),
@@ -46,9 +48,22 @@ def update_player_in_db(player):
 
 def create_player_from_json(json_player):
     last_name = json_player["last_name"]
-    birth_date = convert_str_to_datetime(json_player["birthdate"])
+    birth_date = datetime.strptime(json_player["birthdate"], "%Y-%m-%d")
     first_name = json_player["first_name"]
     gender = json_player["gender"]
     rank = json_player["rank"]
     score = json_player["score"]
     return Player(last_name, first_name, birth_date, gender, rank, score)
+
+
+def sort_players_list(method, json_players_list):
+    players_list = []
+    for json_player in json_players_list:
+        player = create_player_from_json(json_player)
+        players_list.append(player)
+    if method == "rank":
+        sorted_players_list = sorted(players_list, reverse=True, key=attrgetter("rank"))
+        return sorted_players_list
+    elif method == "alpha":
+        sorted_players_list = sorted(players_list, reverse=True, key=attrgetter("last_name"))
+        return sorted_players_list
