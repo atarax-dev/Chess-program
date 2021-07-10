@@ -56,7 +56,7 @@ def show_tournament_sorted_results(tournament):
 
 
 def show_tournament_current_rounds_list(tournament):
-    print(tournament.current_round)
+    print("Round " + str(tournament.current_round))
     print(tournament.rounds_list[tournament.current_round-1].match_list)
 
 
@@ -187,34 +187,33 @@ def ask_new_first_name():
 
 def ask_new_birth_date():
     new_birth_date = input("Entrez la nouvelle date de naissance du joueur au format AAAAMMJJ ")
-    valid_birth_date = False
-    while not valid_birth_date:
-        try:
-            new_birth_date = f"{new_birth_date[:4]}-{new_birth_date[4:6]}-{new_birth_date[6:8]}"
-            new_birth_date = datetime.strptime(new_birth_date, "%Y-%m-%d")
-            valid_birth_date = True
-        except ValueError:
-            new_birth_date = input("Entrez la nouvelle date de naissance du joueur au format AAAAMMJJ ")
-            print("Entrez la date au format AAAAMMJJ")
-    return new_birth_date
+    try:
+        new_birth_date = f"{new_birth_date[:4]}-{new_birth_date[4:6]}-{new_birth_date[6:8]}"
+        new_birth_date = datetime.strptime(new_birth_date, "%Y-%m-%d")
+        return new_birth_date
+    except ValueError:
+        ask_new_birth_date()
+        print("Entrez la date au format AAAAMMJJ")
 
 
 def ask_new_gender():
     new_gender = input("Veuillez entrez le nouveau genre du joueur M(ale)/F(emale)/O(thers) ")
-    while new_gender.lower not in ["m", "f", "o"]:
-        new_gender = input("Veuillez entrez le nouveau genre du joueur M(ale)/F(emale)/O(thers) ")
+    try:
+        new_gender = new_gender.lower()
+    except ValueError:
+        ask_new_gender()
+    if new_gender not in ["m", "f", "o"]:
+        ask_new_gender()
         print("Vous devez entrer M, F ou O")
     return new_gender
 
 
 def ask_new_rank():
     new_rank = input("Veuillez entrez le classement du joueur ")
-    valid_rank = False
-    while not valid_rank:
-        try:
-            new_rank = int(new_rank)
-            valid_rank = True
-        except ValueError:
-            new_rank = input("Veuillez entrez le nouveau classement du joueur ")
-            print("Vous devez entrer un entier")
-    return new_rank
+    try:
+        new_rank = int(new_rank)
+        return new_rank
+    except ValueError:
+        ask_new_rank()
+        print("Vous devez entrer un entier")
+

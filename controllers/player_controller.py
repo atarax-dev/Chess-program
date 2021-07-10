@@ -22,13 +22,26 @@ def save_player_in_db(player_object):
     players_table.insert(data)
 
 
-def update_player_in_db(player):
+def update_player_in_db(player, attribute_to_modify):
     db = TinyDB("db.json")
     players_table = db.table("players")
     user = Query()
-    result = players_table.search((user.first_name == f"{player.first_name}"
-                                   and user.last_name == f"{player.last_name}")
-                                  or (user.birth_date == f"{player.birth_date}" and user.rank == f"{player.rank}"))
+    result = []
+    if attribute_to_modify == "first_name":
+        result = players_table.search(user.birth_date == f"{player.birth_date}"
+                                      and user.last_name == f"{player.last_name}")
+    elif attribute_to_modify == "last_name":
+        result = players_table.search(user.first_name == f"{player.first_name}"
+                                      and user.birth_date == f"{player.birth_date}")
+    elif attribute_to_modify == "birth_date":
+        result = players_table.search(user.first_name == f"{player.birth_date}"
+                                      and user.last_name == f"{player.last_name}")
+    elif attribute_to_modify == "gender":
+        result = players_table.search(user.first_name == f"{player.birth_date}"
+                                      and user.last_name == f"{player.last_name}")
+    elif attribute_to_modify == "rank":
+        result = players_table.search(user.first_name == f"{player.birth_date}"
+                                      and user.last_name == f"{player.last_name}")
 
     update_list = [({"last_name": f"{player.last_name}"}, user.last_name == str(result[0]["last_name"])
                     and user.first_name == str(result[0]["first_name"])),
@@ -38,9 +51,9 @@ def update_player_in_db(player):
                     user.last_name == str(result[0]["last_name"]) and user.first_name == str(result[0]["first_name"])),
                    ({"gender": f"{player.gender}"}, user.last_name == str(result[0]["last_name"])
                     and user.first_name == str(result[0]["first_name"])),
-                   ({"rank": f"{player.rank}"}, user.last_name == str(result[0]["last_name"])
+                   ({"rank": int(player.rank)}, user.last_name == str(result[0]["last_name"])
                     and user.first_name == str(result[0]["first_name"])),
-                   ({"score": f"{player.score}"}, user.last_name == str(result[0]["last_name"])
+                   ({"score": int(player.score)}, user.last_name == str(result[0]["last_name"])
                     and user.first_name == str(result[0]["first_name"]))]
 
     players_table.update_multiple(update_list)
@@ -51,7 +64,7 @@ def create_player_from_json(json_player):
     birth_date = datetime.strptime(json_player["birth_date"], "%Y-%m-%d").date()
     first_name = json_player["first_name"]
     gender = json_player["gender"]
-    rank = json_player["rank"]
+    rank = int(json_player["rank"])
     score = json_player["score"]
     return Player(last_name, first_name, birth_date, gender, rank, score)
 
@@ -65,5 +78,5 @@ def sort_players_list(method, json_players_list):
         sorted_players_list = sorted(players_list, reverse=True, key=attrgetter("rank"))
         return sorted_players_list
     elif method == "alpha":
-        sorted_players_list = sorted(players_list, reverse=True, key=attrgetter("last_name"))
+        sorted_players_list = sorted(players_list, reverse=False, key=attrgetter("last_name"))
         return sorted_players_list

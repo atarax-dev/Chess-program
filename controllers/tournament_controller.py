@@ -99,6 +99,10 @@ def run_tournament_menu():
         while choice not in menu_range:
             ask_for_choice()
         tournament = load_tournament_from_db(tournaments_table[choice-1]["name"], tournaments_table[choice-1]["place"])
+        while len(tournament.players_list) < 8:
+            print(f"Il manque {8 - len(tournament.players_list)} joueurs")
+            run_add_players_menu(tournament)
+            update_tournament_in_db(tournament)
         launch_tournament(tournament)
     elif user_choice == 3:
         run_main_menu()
@@ -124,7 +128,7 @@ def run_add_players_menu(tournament):
         menu_range = get_range_list(players_table)
         while choice not in menu_range:
             ask_for_choice()
-        player = load_player_from_db(players_table[choice - 1]["name"], players_table[choice - 1]["last_name"])
+        player = load_player_from_db(players_table[choice - 1]["first_name"], players_table[choice - 1]["last_name"])
         tournament.players_list.append(player)
     elif user_choice == 3:
         run_main_menu()
@@ -225,29 +229,29 @@ def run_modify_player_menu(player):
     while not is_valid_entry(user_choice, [1, 2, 3, 4, 5, 6]):
         user_choice = show_menu(modify_player_menu_list)
     if user_choice == 1:
-        new_first_name = ask_new_first_name()
-        player.first_name = new_first_name
-        update_player_in_db(player)
+        new_last_name = ask_new_last_name()
+        player.last_name = new_last_name
+        update_player_in_db(player, "last_name")
         run_database_menu()
     elif user_choice == 2:
-        new_last_name = ask_new_last_name()
-        player.first_name = new_last_name
-        update_player_in_db(player)
+        new_first_name = ask_new_first_name()
+        player.first_name = new_first_name
+        update_player_in_db(player, "first_name")
         run_database_menu()
     elif user_choice == 3:
         new_birth_date = ask_new_birth_date()
         player.birth_date = new_birth_date
-        update_player_in_db(player)
+        update_player_in_db(player, "birth_date")
         run_database_menu()
     elif user_choice == 4:
         new_gender = ask_new_gender()
         player.gender = new_gender
-        update_player_in_db(player)
+        update_player_in_db(player, "gender")
         run_database_menu()
     elif user_choice == 5:
         new_rank = ask_new_rank()
         player.rank = new_rank
-        update_player_in_db(player)
+        update_player_in_db(player, "rank")
         run_database_menu()
     elif user_choice == 6:
         run_database_menu()

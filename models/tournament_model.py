@@ -11,15 +11,7 @@ class Tournament:
     def __init__(self, name, place, date, time_control, description, players_list=None,
                  number_of_rounds=4, rounds_list=None, current_round=0):
         if players_list is None:
-            players_list = [
-                Player("Dupont", "JM", datetime(1990, 6, 12), "M", 2000),
-                Player("Bueno", "Pepito", datetime(1993, 8, 24), "M", 1800),
-                Player("Nabialek", "Anthony", datetime(1993, 3, 25), "M", 2500),
-                Player("De Troie", "Emile", datetime(2003, 10, 17), "M", 1000),
-                Player("Cagole", "Cindy", datetime(1989, 5, 7), "F", 600),
-                Player("Pahouf", "Laetitia", datetime(1991, 5, 3), "F", 1200),
-                Player("Tukonai", "Ines", datetime(1977, 4, 1), "F", 1550),
-                Player("Layeuve", "Francoise", datetime(1958, 6, 13), "F", 1950)]
+            players_list = []
         if rounds_list is None:
             rounds_list = []
         self.current_round = current_round
