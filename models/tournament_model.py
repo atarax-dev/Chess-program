@@ -104,7 +104,7 @@ class Tournament:
         return {
             "name": self.name,
             "place": self.place,
-            "date": str(self.date),
+            "date": datetime.strftime(self.date, "%Y-%m-%d %H:%M:%S"),
             "time_control": self.time_control,
             "players_list": json_players_list,
             "number_of_rounds": self.number_of_rounds,

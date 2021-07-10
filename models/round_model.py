@@ -17,11 +17,11 @@ class Round:
         if self.end_date == 0:
             end_date = 0
         else:
-            end_date = datetime.strptime(self.end_date, "%Y-%m-%d %H:%M")
+            end_date = datetime.strftime(self.end_date, "%Y-%m-%d %H:%M")
 
         return {
             "match_list": json_match_list,
             "name": self.name,
-            "begin_date": datetime.strptime(self.begin_date, "%Y-%m-%d %H:%M"),
+            "begin_date": datetime.strftime(self.begin_date, "%Y-%m-%d %H:%M"),
             "end_date": end_date
         }

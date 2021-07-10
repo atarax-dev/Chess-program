@@ -3,14 +3,14 @@ from datetime import datetime
 from tinydb import TinyDB, Query
 
 from controllers.player_controller import save_player_in_db, create_player_from_json, load_player_from_db, \
-    update_player_in_db
+    update_player_in_db, sort_players_list
 from controllers.round_controller import create_round_from_json
 from models.tournament_model import Tournament
 from views.views import show_tournament_current_rounds_list, show_tournament_sorted_results, ask_continue_or_quit, \
     show_menu, main_menu_list, tournament_menu_list, ask_tournament_attributes, add_players_menu_list, \
     ask_player_attributes, database_menu_list, ask_for_scores, show_tournaments_from_db, ask_for_choice, \
     show_players_from_db, show_players, show_rounds, modify_player_menu_list, ask_new_first_name, ask_new_last_name, \
-    ask_new_birth_date, ask_new_gender, ask_new_rank
+    ask_new_birth_date, ask_new_gender, ask_new_rank, show_players_menu_list, show_players_in_players_list
 
 
 def launch_tournament(tournament):
@@ -23,6 +23,7 @@ def launch_tournament(tournament):
         continue_or_quit()
     for player in tournament.players_list:
         player.score = 0
+        update_player_in_db(player)
 
 
 def enter_scores(tournament):
@@ -94,7 +95,8 @@ def run_tournament_menu():
             tournaments_table.append(tournament)
         show_tournaments_from_db()
         choice = ask_for_choice()
-        while choice not in len(tournaments_table):
+        menu_range = get_range_list(tournaments_table)
+        while choice not in menu_range:
             ask_for_choice()
         tournament = load_tournament_from_db(tournaments_table[choice-1]["name"], tournaments_table[choice-1]["place"])
         launch_tournament(tournament)
@@ -119,12 +121,22 @@ def run_add_players_menu(tournament):
         for player in raw_players_table:
             players_table.append(player)
         choice = ask_for_choice()
-        while choice not in len(players_table):
-            choice = ask_for_choice()
+        menu_range = get_range_list(players_table)
+        while choice not in menu_range:
+            ask_for_choice()
         player = load_player_from_db(players_table[choice - 1]["name"], players_table[choice - 1]["last_name"])
         tournament.players_list.append(player)
     elif user_choice == 3:
         run_main_menu()
+
+
+def get_range_list(menu_list):
+    menu_range = []
+    i = 1
+    for ranged in range(len(menu_list) + 1):
+        menu_range.append(i)
+        i += 1
+    return menu_range
 
 
 def run_database_menu():
@@ -143,12 +155,13 @@ def run_database_menu():
         for player in raw_players_table:
             players_table.append(player)
         choice = ask_for_choice()
-        while choice not in len(players_table):
-            choice = ask_for_choice()
-        player = load_player_from_db(players_table[choice - 1]["name"], players_table[choice - 1]["last_name"])
+        menu_range = get_range_list(players_table)
+        while choice not in menu_range:
+            ask_for_choice()
+        player = load_player_from_db(players_table[choice - 1]["first_name"], players_table[choice - 1]["last_name"])
         run_modify_player_menu(player)
     elif user_choice == 3:
-        show_players_from_db()
+        run_show_players_menu()
         continue_or_quit()
         run_database_menu()
     elif user_choice == 4:
@@ -163,7 +176,8 @@ def run_database_menu():
             tournaments_table.append(tournament)
         show_tournaments_from_db()
         choice = ask_for_choice()
-        while choice not in len(tournaments_table):
+        menu_range = get_range_list(tournaments_table)
+        while choice not in menu_range:
             ask_for_choice()
         tournament = load_tournament_from_db(tournaments_table[choice - 1]["name"],
                                              tournaments_table[choice - 1]["place"])
@@ -178,7 +192,8 @@ def run_database_menu():
             tournaments_table.append(tournament)
         show_tournaments_from_db()
         choice = ask_for_choice()
-        while choice not in len(tournaments_table):
+        menu_range = get_range_list(tournaments_table)
+        while choice not in menu_range:
             ask_for_choice()
         tournament = load_tournament_from_db(tournaments_table[choice - 1]["name"],
                                              tournaments_table[choice - 1]["place"])
@@ -193,7 +208,8 @@ def run_database_menu():
             tournaments_table.append(tournament)
         show_tournaments_from_db()
         choice = ask_for_choice()
-        while choice not in len(tournaments_table):
+        menu_range = get_range_list(tournaments_table)
+        while choice not in menu_range:
             ask_for_choice()
         tournament = load_tournament_from_db(tournaments_table[choice - 1]["name"],
                                              tournaments_table[choice - 1]["place"])
@@ -234,6 +250,27 @@ def run_modify_player_menu(player):
         update_player_in_db(player)
         run_database_menu()
     elif user_choice == 6:
+        run_database_menu()
+
+
+def run_show_players_menu():
+    choice = show_menu(show_players_menu_list)
+    db = TinyDB("db.json")
+    players_table = db.table("players")
+    players_list = []
+    for player in players_table:
+        players_list.append(player)
+    if choice == 1:
+        sorted_players_list = sort_players_list("alpha", players_list)
+        show_players_in_players_list(sorted_players_list)
+        continue_or_quit()
+        run_show_players_menu()
+    elif choice == 2:
+        sorted_players_list = sort_players_list("rank", players_list)
+        show_players_in_players_list(sorted_players_list)
+        continue_or_quit()
+        run_show_players_menu()
+    elif choice == 3:
         run_database_menu()
 
 
@@ -294,7 +331,7 @@ def update_tournament_in_db(tournament):
 def create_tournament_from_json(json_tournament):
     name = json_tournament["name"]
     place = json_tournament["place"]
-    date = datetime.strptime(json_tournament["date"], "%Y-%m-%d %H:%M")
+    date = datetime.strptime(json_tournament["date"], "%Y-%m-%d %H:%M:%S")
     time_control = json_tournament["time_control"]
     json_players_list = json_tournament["players_list"]
     players_list = []

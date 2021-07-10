@@ -24,7 +24,7 @@ database_menu_list = ["[1]. Créer un nouveau joueur\n",
                       "[4]. Afficher tous les tournois\n",
                       "[5]. Afficher les joueurs d'un tournoi\n",
                       "[6]. Afficher les rondes d'un tournoi\n",
-                      "7]. Afficher les matchs d'un tournoi\n",
+                      "[7]. Afficher les matchs d'un tournoi\n",
                       "[8]. Retour\n"]
 
 modify_player_menu_list = ["[1]. Modifier le nom\n",
@@ -33,6 +33,10 @@ modify_player_menu_list = ["[1]. Modifier le nom\n",
                            "[4]. Modifier le genre\n",
                            "[5]. Modifier le classement\n",
                            "[6]. Retour\n"]
+
+show_players_menu_list = ["[1]. Afficher par ordre alphabetique\n",
+                          "[2]. Afficher par classement\n",
+                          "[3]. Retour\n"]
 
 
 def show_menu(menu_list):
@@ -62,9 +66,10 @@ def ask_tournament_attributes():
     while not place.isalpha():
         place = input("Où se joue t'il? ")
         print("Vous ne devez entrer que des lettres")
-    date = datetime.now()
+    date0 = datetime.now().strftime("%Y-%m-%d %H:%M")
+    date = datetime.strptime(date0, "%Y-%m-%d %H:%M")
     time_control = input("Quel mode de jeu? (Bullet [1], Blitz [2], Rapide[3])  ")
-    while time_control not in [1, 2, 3]:
+    while time_control not in ["1", "2", "3"]:
         time_control = input("Quel mode de jeu? (Bullet [1], Blitz [2], Rapide[3])  ")
         print("Vous devez entrer 1, 2 ou 3")
     description = input("Ecrivez ici les remarques du tournoi ")
@@ -79,14 +84,14 @@ def ask_player_attributes():
     while not valid_birth_date:
         try:
             birth_date = f"{birth_date[:4]}-{birth_date[4:6]}-{birth_date[6:8]}"
-            birth_date = datetime.strptime(birth_date, "%Y-%m-%d")
+            birth_date = datetime.strptime(birth_date, "%Y-%m-%d").date()
             valid_birth_date = True
         except ValueError:
             birth_date = input("Veuillez entrez la date de naissance du joueur au format AAAAMMJJ ")
             print("Entrez la date au format AAAAMMJJ")
-    gender = input("Veuillez entrez le genre du joueur M(ale)/F(emale)/O(thers) ")
-    while gender.lower not in ["m", "f", "o"]:
-        gender = input("Veuillez entrez le genre du joueur M(ale)/F(emale)/O(thers) ")
+    gender = input("Veuillez entrez le genre du joueur M(ale)/F(emale)/O(thers) ").lower()
+    while gender not in ["m", "f", "o"]:
+        gender = input("Veuillez entrez le genre du joueur M(ale)/F(emale)/O(thers) ").lower()
         print("Vous devez entrer M, F ou O")
     rank = input("Veuillez entrez le classement du joueur ")
     valid_rank = False
@@ -110,19 +115,28 @@ def ask_continue_or_quit():
     return answer
 
 
+def show_players_in_players_list(players_list):
+    i = 1
+    for player in players_list:
+        print(f"[{i}]." + player.last_name + " " + player.first_name + " " + datetime.strftime(player.birth_date,
+                                                                                               "%Y-%m-%d")
+              + " " + player.gender + " " + str(player.rank))
+        i += 1
+
+
 def show_players_from_db():
     db = TinyDB("db.json")
     players_table = db.table("players")
     i = 1
     for player in players_table:
-        print(f"[{i}]." + player["last_name"] + " " + player["first_name"] + " " + player["birth_date"]
+        print(f"[{i}.]" + player["first_name"] + " " + player["last_name"] + " " + str(player["birth_date"])
               + " " + player["gender"] + " " + str(player["rank"]))
         i += 1
 
 
 def show_tournaments_from_db():
     db = TinyDB("db.json")
-    tournaments_table = db.table("players")
+    tournaments_table = db.table("tournaments")
     i = 1
     for tournament in tournaments_table:
         print(f"[{i}]." + tournament["name"] + " " + tournament["place"] + " " + tournament["date"]
@@ -145,14 +159,19 @@ def show_players(players_list):
 
 
 def ask_for_choice():
-    choice = input("Quel est votre choix? ")
-    return choice
+    try:
+        choice = input("Quel est votre choix? ")
+        choice = int(choice)
+        return choice
+    except ValueError:
+        ask_for_choice()
+        print("Veuillez entrer un chiffre valide")
 
 
 def show_rounds(rounds_list):
     for played_round in rounds_list:
         print(f"{played_round.name}")
-        for match in played_round.matchlist:
+        for match in played_round.match_list:
             print(f"{match.player1}:{match.result1} vs {match.player2}:{match.result2}")
 
 

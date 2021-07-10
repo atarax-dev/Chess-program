@@ -48,7 +48,7 @@ def update_player_in_db(player):
 
 def create_player_from_json(json_player):
     last_name = json_player["last_name"]
-    birth_date = datetime.strptime(json_player["birthdate"], "%Y-%m-%d")
+    birth_date = datetime.strptime(json_player["birth_date"], "%Y-%m-%d").date()
     first_name = json_player["first_name"]
     gender = json_player["gender"]
     rank = json_player["rank"]
