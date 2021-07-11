@@ -15,7 +15,8 @@ from views.views import show_tournament_current_rounds_list, show_tournament_sor
 
 def launch_tournament(tournament):
     while tournament.current_round <= tournament.number_of_rounds:
-        tournament.generate_swiss_pairs()
+        if not len(tournament.rounds_list) == tournament.current_round:
+            tournament.generate_swiss_pairs()
         update_tournament_in_db(tournament)
         show_tournament_current_rounds_list(tournament)
         enter_scores(tournament)
@@ -23,7 +24,7 @@ def launch_tournament(tournament):
         continue_or_quit()
     for player in tournament.players_list:
         player.score = 0
-        update_player_in_db(player)
+        update_player_in_db(player, "first_name")
 
 
 def enter_scores(tournament):

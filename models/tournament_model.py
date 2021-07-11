@@ -3,7 +3,6 @@ from itertools import islice, combinations
 from operator import attrgetter
 
 from models.match_model import Match
-from models.player_model import Player
 from models.round_model import Round
 
 
@@ -23,6 +22,7 @@ class Tournament:
         self.time_control = time_control
         self.description = description
         self.number_of_rounds = number_of_rounds
+        # TODO ajouter une liste de dates du tournoi
 
     def add_player(self, player):
         self.players_list.append(player)
