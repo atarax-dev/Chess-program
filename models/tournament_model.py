@@ -8,7 +8,9 @@ from models.round_model import Round
 
 class Tournament:
     def __init__(self, name, place, date, time_control, description, players_list=None,
-                 number_of_rounds=4, rounds_list=None, current_round=0):
+                 number_of_rounds=4, rounds_list=None, date_list=None, current_round=0):
+        if date_list is None:
+            date_list = []
         if players_list is None:
             players_list = []
         if rounds_list is None:
@@ -22,7 +24,7 @@ class Tournament:
         self.time_control = time_control
         self.description = description
         self.number_of_rounds = number_of_rounds
-        # TODO ajouter une liste de dates du tournoi
+        self.date_list = date_list
 
     def add_player(self, player):
         self.players_list.append(player)
@@ -31,7 +33,9 @@ class Tournament:
         self.rounds_list.append(roundn)
 
     def get_possible_combos(self):
-        tmp_list = self.players_list
+        tmp_list = []
+        for player in self.players_list:
+            tmp_list.append(f"{player.first_name} {player.last_name}")
         possible_combos = list(combinations(tmp_list, 2))
         reversed_tuples = []
         for (i, j) in possible_combos:
@@ -53,28 +57,30 @@ class Tournament:
             possible_combos = self.get_possible_combos()
             for played_round in self.rounds_list:
                 for match in played_round.match_list:
-                    possible_combos.remove((match.player1, match.player2))
-                    possible_combos.remove((match.player2, match.player1))
+                    possible_combos.remove((f"{match.player1.first_name} {match.player1.last_name}",
+                                            f"{match.player2.first_name} {match.player2.last_name}"))
+                    possible_combos.remove((f"{match.player2.first_name} {match.player2.last_name}",
+                                            f"{match.player1.first_name} {match.player1.last_name}"))
             tmp_list = list(self.players_list)
             match_list = []
             while len(tmp_list) >= 2:
                 i = 1
                 try:
-                    while (tmp_list[0], tmp_list[i]) not in possible_combos:
+                    while (f"{tmp_list[0].first_name} {tmp_list[0].last_name}",
+                           f"{tmp_list[i].first_name} {tmp_list[i].last_name}") not in possible_combos:
                         i += 1
                 except IndexError:
                     i = 1
                 pair = (tmp_list[0], tmp_list[i])
                 match = Match(pair[0], pair[1])
-                reversed_pair = (tmp_list[i], tmp_list[0])
+                possible_combos.remove((f"{tmp_list[0].first_name} {tmp_list[0].last_name}",
+                                        f"{tmp_list[i].first_name} {tmp_list[i].last_name}"))
+                possible_combos.remove((f"{tmp_list[i].first_name} {tmp_list[i].last_name}",
+                                        f"{tmp_list[0].first_name} {tmp_list[0].last_name}"))
                 tmp_list.remove(tmp_list[i])
                 tmp_list.remove(tmp_list[0])
                 match_list.append(match)
-                try:
-                    possible_combos.remove(pair)
-                    possible_combos.remove(reversed_pair)
-                except ValueError:
-                    pass
+
             self.add_round(Round(match_list, name=f"Round{self.current_round}", begin_date=datetime.now()))
 
     def sort_players_score(self):
@@ -102,7 +108,8 @@ class Tournament:
             "number_of_rounds": self.number_of_rounds,
             "rounds_list": json_rounds_list,
             "description": self.description,
-            "current_round": self.current_round
+            "current_round": self.current_round,
+            "date_list": self.date_list
         }
 
     def get_tournament_details(self):

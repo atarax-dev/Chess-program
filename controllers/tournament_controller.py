@@ -15,20 +15,26 @@ from views.views import show_tournament_current_rounds_list, show_tournament_sor
 
 def launch_tournament(tournament):
     while tournament.current_round <= tournament.number_of_rounds:
-        if not len(tournament.rounds_list) == tournament.current_round:
+        if tournament.current_round == 0 and len(tournament.rounds_list) == 0:
+            tournament.generate_swiss_pairs()
+        if not len(tournament.rounds_list) >= tournament.current_round:
             tournament.generate_swiss_pairs()
         update_tournament_in_db(tournament)
         show_tournament_current_rounds_list(tournament)
         enter_scores(tournament)
         show_tournament_sorted_results(tournament)
         continue_or_quit()
-    for player in tournament.players_list:
-        player.score = 0
-        update_player_in_db(player, "first_name")
+    if tournament.current_round == 5:
+        for player in tournament.players_list:
+            player.score = 0
+            update_player_in_db(player, "first_name")
 
 
 def enter_scores(tournament):
     i = tournament.current_round - 1
+    if str(tournament.date.date()) != str(datetime.now().date()) \
+            and not (str(datetime.now().date()) in tournament.date_list):
+        tournament.date_list.append(str(datetime.now().date()))
     for versus in tournament.rounds_list[i].match_list:
         if versus.result1 == 0 and versus.result2 == 0:
             result = 0
@@ -98,13 +104,14 @@ def run_tournament_menu():
         choice = ask_for_choice()
         menu_range = get_range_list(tournaments_table)
         while choice not in menu_range:
-            ask_for_choice()
+            choice = ask_for_choice()
         tournament = load_tournament_from_db(tournaments_table[choice-1]["name"], tournaments_table[choice-1]["place"])
         while len(tournament.players_list) < 8:
             print(f"Il manque {8 - len(tournament.players_list)} joueurs")
             run_add_players_menu(tournament)
             update_tournament_in_db(tournament)
         launch_tournament(tournament)
+        run_main_menu()
     elif user_choice == 3:
         run_main_menu()
 
@@ -327,7 +334,10 @@ def update_tournament_in_db(tournament):
                     and tournament_entry.place == str(result[0]["place"])),
                    ({"rounds_list": json_tournament["rounds_list"]}, tournament_entry.name == str(result[0]["name"])
                     and tournament_entry.place == str(result[0]["place"])),
-                   ({"current_round": json_tournament["current_round"]}, tournament_entry.name == str(result[0]["name"])
+                   ({"current_round": json_tournament["current_round"]},
+                    tournament_entry.name == str(result[0]["name"])
+                    and tournament_entry.place == str(result[0]["place"])),
+                   ({"date_list": json_tournament["date_list"]}, tournament_entry.name == str(result[0]["name"])
                     and tournament_entry.place == str(result[0]["place"]))]
 
     tournaments_table.update_multiple(update_list)
@@ -351,5 +361,6 @@ def create_tournament_from_json(json_tournament):
     number_of_rounds = json_tournament["number_of_rounds"]
     description = json_tournament["description"]
     current_round = json_tournament["current_round"]
+    date_list = json_tournament["date_list"]
     return Tournament(name, place, date, time_control, description, players_list,
-                      number_of_rounds, rounds_list, current_round)
+                      number_of_rounds, rounds_list, date_list, current_round)
