@@ -3,6 +3,11 @@ from models.match_model import Match
 
 
 def create_match_from_json(json_match):
+    """
+Crée un match à partir d'un json
+    :param json_match: json
+    :return: instance de match
+    """
     player1 = create_player_from_json(json_match["player1"])
     player2 = create_player_from_json(json_match["player2"])
     result1 = json_match["result1"]

@@ -21,7 +21,7 @@ add_players_menu_list = ["[1]. Ajouter un nouveau joueur\n",
 database_menu_list = ["[1]. Créer un nouveau joueur\n",
                       "[2]. Modifier un joueur\n",
                       "[3]. Afficher tous les joueurs de la base de données\n",
-                      "[4]. Afficher tous les tournois\n",
+                      "[4]. Afficher tous les tournois de la base de données\n",
                       "[5]. Afficher les joueurs d'un tournoi\n",
                       "[6]. Afficher les rondes d'un tournoi\n",
                       "[7]. Afficher les matchs d'un tournoi\n",
@@ -40,6 +40,11 @@ show_players_menu_list = ["[1]. Afficher par ordre alphabetique\n",
 
 
 def show_menu(menu_list):
+    """
+Affiche un menu à partir d'une liste
+    :param menu_list: liste contenant les choix
+    :return: user input (int)
+    """
     for path in menu_list:
         print(path)
     try:
@@ -50,18 +55,30 @@ def show_menu(menu_list):
 
 
 def show_tournament_sorted_results(tournament):
+    """
+Affiche les résultats triés du tournoi
+    :param tournament: instance de tournoi
+    """
     tournament.sort_players_score()
     for player in tournament.players_list:
-        print(player.first_name + " " + str(player.score) + " " + str(player.rank))
+        print(player.first_name + " " + player.last_name + " " + str(player.score) + " " + str(player.rank))
 
 
 def show_tournament_current_rounds_list(tournament):
+    """
+Affiche les matchs du round en cours
+    :param tournament: instance de tournoi
+    """
     print("Round " + str(tournament.current_round))
     for versus in tournament.rounds_list[tournament.current_round-1].match_list:
         print(f"{versus.player1.first_name} vs {versus.player2.first_name}")
 
 
 def ask_tournament_attributes():
+    """
+Demande les informations pour la création du tournoi
+    :return: instance de tournoi
+    """
     name = input("Quel est le nom du tournoi? ")
     place = input("Où se joue t'il? ")
     while not place.isalpha():
@@ -84,6 +101,10 @@ def ask_tournament_attributes():
 
 
 def ask_player_attributes():
+    """
+Demande les informations pour la création d'un joueur
+    :return: instance de joueur
+    """
     last_name = input("Veuillez entrez le nom de famille du joueur ")
     first_name = input("Veuillez entrez le prénom du joueur ")
     birth_date = input("Veuillez entrez la date de naissance du joueur au format AAAAMMJJ ")
@@ -113,6 +134,11 @@ def ask_player_attributes():
 
 
 def ask_for_scores(versus):
+    """
+Demande le résultat d'un match
+    :param versus: tuple de joueurs généré par l'algorithme de génération des paires
+    :return: str
+    """
     result = str(input(f"Veuillez entrez le résultat du match {versus} (1/2/N) ")).lower()
     return result
 
@@ -123,6 +149,10 @@ def ask_continue_or_quit():
 
 
 def show_players_in_players_list(players_list):
+    """
+Affiche les informations des joueurs d'une liste, précédées d'un index
+    :param players_list: liste d'instances de joueurs
+    """
     i = 1
     for player in players_list:
         print(f"[{i}]." + player.last_name + " " + player.first_name + " " + datetime.strftime(player.birth_date,
@@ -132,6 +162,9 @@ def show_players_in_players_list(players_list):
 
 
 def show_players_from_db():
+    """
+Affiche les informations des joueurs en base de données, précédées d'un index
+    """
     db = TinyDB("db.json")
     players_table = db.table("players")
     i = 1
@@ -142,14 +175,18 @@ def show_players_from_db():
 
 
 def show_tournaments_from_db():
+    """
+Affiche les informations des tournois en base de données, précédées d'un index
+    """
     db = TinyDB("db.json")
     tournaments_table = db.table("tournaments")
     i = 1
     for tournament in tournaments_table:
-        print(f"[{i}]." + tournament["name"] + " " + tournament["place"] + "  Debut: " + tournament["date"]
+        print(f"[{i}]." + tournament["name"] + " " + tournament["place"] + "  Date: " + tournament["date"]
               + " " + tournament["time_control"])
         print(tournament["description"])
         try:
+            print("Dates supplémentaires:")
             for date in tournament["date_list"]:
                 print(date)
         except KeyError:
@@ -165,12 +202,11 @@ def show_tournaments_from_db():
             print("Tournoi en cours")
 
 
-def show_players(players_list):
-    for player in players_list:
-        print(f"{player.first_name} {player.last_name} {player.birth_date} {player.gender} {player.rank}")
-
-
 def ask_for_choice():
+    """
+Demande un choix à l'utilisateur
+    :return: int
+    """
     choice = input("Quel est votre choix? ")
     try:
         choice = int(choice)
@@ -180,10 +216,18 @@ def ask_for_choice():
 
 
 def show_rounds(rounds_list):
+    """
+Affiche le nom de chaque round et le résultat des matchs qu'il contient
+    :param rounds_list: liste d'instances de round
+    """
     for played_round in rounds_list:
         print(f"{played_round.name}")
+        print(f"Date et heure de début: {played_round.begin_date}")
+        if played_round.end_date is not None:
+            print(f"Date et heure de fin: {played_round.end_date}")
         for match in played_round.match_list:
-            print(f"{match.player1}:{match.result1} vs {match.player2}:{match.result2}")
+            print(f"{match.player1.first_name} {match.player1.last_name}:{match.result1} "
+                  f"vs {match.player2.first_name} {match.player2.last_name}:{match.result2}")
 
 
 def ask_new_last_name():

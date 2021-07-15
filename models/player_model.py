@@ -11,10 +11,14 @@ class Player:
         self.rank = rank
         self.score = score
 
-    def __repr__(self):
-        return self.first_name
+#    def __repr__(self):
+#        return self.first_name
 
     def get_json(self):
+        """
+Permet d'obtenir les informations du joueur sous forme de dictionnaire
+        :return: dict
+        """
         return {
             "last_name": self.last_name,
             "first_name": self.first_name,
@@ -23,9 +27,3 @@ class Player:
             "rank": self.rank,
             "score": self.score
         }
-
-    def set_rank(self, new_rank):
-        self.rank = new_rank
-
-    def get_player_details(self):
-        return self.last_name, self.first_name, self.birth_date, self.gender

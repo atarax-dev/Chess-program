@@ -7,6 +7,12 @@ from models.player_model import Player
 
 
 def load_player_from_db(first_name, last_name):
+    """
+Crée un objet joueur à partir de la base de données
+    :param first_name: str
+    :param last_name: str
+    :return: instance de joueur
+    """
     db = TinyDB("db.json")
     players_table = db.table("players")
     player = Query()
@@ -16,6 +22,10 @@ def load_player_from_db(first_name, last_name):
 
 
 def save_player_in_db(player_object):
+    """
+Sauvegarde un joueur en base de données
+    :param player_object: instance de joueur
+    """
     data = player_object.get_json()
     db = TinyDB("db.json")
     players_table = db.table("players")
@@ -23,6 +33,11 @@ def save_player_in_db(player_object):
 
 
 def update_player_in_db(player, attribute_to_modify):
+    """
+Met à jour les informations d'un joueur dans la base de données
+    :param player: instance de joueur
+    :param attribute_to_modify: attribut à modifier
+    """
     db = TinyDB("db.json")
     players_table = db.table("players")
     user = Query()
@@ -60,6 +75,11 @@ def update_player_in_db(player, attribute_to_modify):
 
 
 def create_player_from_json(json_player):
+    """
+Crée une instance de joueur à partir d'un json
+    :param json_player: json
+    :return: instance de joueur
+    """
     last_name = json_player["last_name"]
     birth_date = datetime.strptime(json_player["birth_date"], "%Y-%m-%d").date()
     first_name = json_player["first_name"]
@@ -69,11 +89,13 @@ def create_player_from_json(json_player):
     return Player(last_name, first_name, birth_date, gender, rank, score)
 
 
-def sort_players_list(method, json_players_list):
-    players_list = []
-    for json_player in json_players_list:
-        player = create_player_from_json(json_player)
-        players_list.append(player)
+def sort_players_list(method, players_list):
+    """
+Trie une liste de joueurs
+    :param method: str ("rank" ou "alpha")
+    :param players_list: liste d'instances de joueur
+    :return: sorted list
+    """
     if method == "rank":
         sorted_players_list = sorted(players_list, reverse=True, key=attrgetter("rank"))
         return sorted_players_list

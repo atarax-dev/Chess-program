@@ -5,6 +5,11 @@ from models.round_model import Round
 
 
 def create_round_from_json(json_round):
+    """
+Crée une instance de round à partir d'un json
+    :param json_round: json
+    :return: instance de round
+    """
     json_match_list = json_round["match_list"]
     match_list = []
     for json_match in json_match_list:

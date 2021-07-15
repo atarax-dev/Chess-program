@@ -33,6 +33,10 @@ class Tournament:
         self.rounds_list.append(roundn)
 
     def get_possible_combos(self):
+        """
+Permet d'obtenir la liste de toutes les combinaisons de matchs possibles
+        :return: list
+        """
         tmp_list = []
         for player in self.players_list:
             tmp_list.append(f"{player.first_name} {player.last_name}")
@@ -44,6 +48,9 @@ class Tournament:
         return possible_combos
 
     def generate_swiss_pairs(self):
+        """
+Permet de générer quatre paires de joueurs selon le système suisse et d'en faire un round du tournoi
+        """
         self.sort_players_score()
         if self.current_round == 0:
             match_tuple_list = zip(self.players_list, islice(self.players_list, 4, 8))
@@ -69,7 +76,7 @@ class Tournament:
                     while (f"{tmp_list[0].first_name} {tmp_list[0].last_name}",
                            f"{tmp_list[i].first_name} {tmp_list[i].last_name}") not in possible_combos:
                         i += 1
-                except IndexError:
+                except IndexError:  # Si la dernière itération révèle une paire déjà jouée
                     i = 1
                 pair = (tmp_list[0], tmp_list[i])
                 match = Match(pair[0], pair[1])
@@ -84,13 +91,23 @@ class Tournament:
             self.add_round(Round(match_list, name=f"Round{self.current_round}", begin_date=datetime.now()))
 
     def sort_players_score(self):
+        """
+Trie les joueurs du tournoi par score
+        """
         s = sorted(self.players_list, reverse=True, key=attrgetter("rank"))
         self.players_list = sorted(s, reverse=True, key=attrgetter("score"))
 
     def sort_players_rank(self):
+        """
+Trie les joueurs du tournoi par classement
+        """
         self.players_list = sorted(self.players_list, reverse=True, key=attrgetter("rank"))
 
     def get_json(self):
+        """
+Permet d'obtenir les informations du tournoi sous forme de dictionnaire
+        :return: dict
+        """
         json_players_list = []
         for player in self.players_list:
             json_player = player.get_json()
@@ -111,7 +128,3 @@ class Tournament:
             "current_round": self.current_round,
             "date_list": self.date_list
         }
-
-    def get_tournament_details(self):
-        return self.name, self.place, self.date, self.rounds_list, self.players_list, \
-               self.time_control, self.description, self.number_of_rounds

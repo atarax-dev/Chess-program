@@ -9,6 +9,10 @@ class Round:
         self.match_list = match_list
 
     def get_json(self):
+        """
+Permet d'obtenir les informations du round sous forme de dictionnaire
+        :return: dict
+        """
         json_match_list = []
         for match in self.match_list:
             json_match = match.get_json()
