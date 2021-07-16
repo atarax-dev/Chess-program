@@ -3,7 +3,10 @@ from operator import attrgetter
 
 from tinydb import TinyDB, Query
 
+from helpers import helpers
 from models.player_model import Player
+from views.views import show_menu, modify_player_menu_list, ask_new_last_name, ask_new_first_name, ask_new_birth_date, \
+    ask_new_gender, ask_new_rank
 
 
 def load_player_from_db(first_name, last_name):
@@ -110,32 +113,32 @@ Lance le menu de modification d'un joueur
     :param player: instance de joueur
     """
     user_choice = 0
-    while not is_valid_entry(user_choice, [1, 2, 3, 4, 5, 6]):
+    while not helpers.is_valid_entry(user_choice, [1, 2, 3, 4, 5, 6]):
         user_choice = show_menu(modify_player_menu_list)
     if user_choice == 1:  # Modifier le nom
         new_last_name = ask_new_last_name()
         player.last_name = new_last_name
         update_player_in_db(player, "last_name")
-        run_database_menu()
+        helpers.run_database_menu()
     elif user_choice == 2:  # Modifier le prenom
         new_first_name = ask_new_first_name()
         player.first_name = new_first_name
         update_player_in_db(player, "first_name")
-        run_database_menu()
+        helpers.run_database_menu()
     elif user_choice == 3:  # Modifier la date de naissance
         new_birth_date = ask_new_birth_date()
         player.birth_date = new_birth_date
         update_player_in_db(player, "birth_date")
-        run_database_menu()
+        helpers.run_database_menu()
     elif user_choice == 4:  # Modifier le genre
         new_gender = ask_new_gender()
         player.gender = new_gender
         update_player_in_db(player, "gender")
-        run_database_menu()
+        helpers.run_database_menu()
     elif user_choice == 5:  # Modifier le classement
         new_rank = ask_new_rank()
         player.rank = new_rank
         update_player_in_db(player, "rank")
-        run_database_menu()
+        helpers.run_database_menu()
     elif user_choice == 6:  # Retour
-        run_database_menu()
+        helpers.run_database_menu()
