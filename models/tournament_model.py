@@ -80,10 +80,13 @@ Permet de générer quatre paires de joueurs selon le système suisse et d'en fa
                     i = 1
                 pair = (tmp_list[0], tmp_list[i])
                 match = Match(pair[0], pair[1])
-                possible_combos.remove((f"{tmp_list[0].first_name} {tmp_list[0].last_name}",
-                                        f"{tmp_list[i].first_name} {tmp_list[i].last_name}"))
-                possible_combos.remove((f"{tmp_list[i].first_name} {tmp_list[i].last_name}",
-                                        f"{tmp_list[0].first_name} {tmp_list[0].last_name}"))
+                try:
+                    possible_combos.remove((f"{tmp_list[0].first_name} {tmp_list[0].last_name}",
+                                            f"{tmp_list[i].first_name} {tmp_list[i].last_name}"))
+                    possible_combos.remove((f"{tmp_list[i].first_name} {tmp_list[i].last_name}",
+                                            f"{tmp_list[0].first_name} {tmp_list[0].last_name}"))
+                except ValueError:
+                    pass
                 tmp_list.remove(tmp_list[i])
                 tmp_list.remove(tmp_list[0])
                 match_list.append(match)
