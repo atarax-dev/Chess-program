@@ -5,7 +5,7 @@ from tinydb import TinyDB, Query
 
 from helpers import helpers
 from models.player_model import Player
-from views.views import show_menu, modify_player_menu_list, ask_new_last_name, ask_new_first_name, ask_new_birth_date, \
+from views.views import show_menu, modify_player_menu_list, ask_new_last_name, ask_new_first_name, ask_new_birth_date,\
     ask_new_gender, ask_new_rank
 
 
